@@ -7,11 +7,12 @@ FROM golang:1.18-alpine AS builder
 WORKDIR /app
 
 # Download necessary Go modules
-COPY go.mod .
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
-# Copy over the source files
-COPY src/*.go ./
+# Copy over everything
+COPY . ./
 
 # Build
 RUN go build -o /main
@@ -21,9 +22,9 @@ RUN go build -o /main
 #
 FROM alpine:latest AS runner
 
-WORKDIR /
-
 # Copy from builder the final binary
-COPY --from=builder /main /main
+COPY --from=builder /main /
+
+EXPOSE 8080
 
 ENTRYPOINT ["/main"]
