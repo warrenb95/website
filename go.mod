@@ -1,3 +1,5 @@
-module github.com/warrenb95/website
+module website
 
 go 1.18
+
+require github.com/gorilla/mux v1.8.0
