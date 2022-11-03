@@ -40,15 +40,11 @@ github.com/gobwas/glob/syntax/ast
 github.com/gobwas/glob/syntax/lexer
 github.com/gobwas/glob/util/runes
 github.com/gobwas/glob/util/strings
-# github.com/gorilla/mux v1.8.0
-## explicit; go 1.12
-github.com/gorilla/mux
 # github.com/livebud/bud v0.2.5
 ## explicit; go 1.18
 github.com/livebud/bud/framework/transform/transformrt
 github.com/livebud/bud/framework/view/ssr
 github.com/livebud/bud/framework/web/webrt
-github.com/livebud/bud/framework/web/welcome
 github.com/livebud/bud/internal/ansi
 github.com/livebud/bud/internal/dag
 github.com/livebud/bud/internal/dsync

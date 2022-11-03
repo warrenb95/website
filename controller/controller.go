@@ -16,7 +16,17 @@ type Blog struct {
 // Index of blogs
 // GET
 func (c *Controller) Index(ctx context.Context) (blogs []*Blog, err error) {
-	return []*Blog{}, nil
+	return []*Blog{
+		{
+			ID: 1,
+		},
+		{
+			ID: 1,
+		},
+		{
+			ID: 1,
+		},
+	}, nil
 }
 
 // Show blog
