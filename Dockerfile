@@ -31,4 +31,4 @@ RUN bud build
 EXPOSE 3000
 
 # Run the app
-ENTRYPOINT [ "./bud/app" , "--log", "debug" ]
+ENTRYPOINT [ "./bud/app" , "--log", "debug", "--listen", "0.0.0.0:3000" ]
