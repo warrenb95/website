@@ -8,7 +8,7 @@ RUN node -v
 
 # Install basic dependencies
 RUN apt-get -qq update \
-  && apt-get -qq -y install curl git make gcc g++ \
+  && apt-get -qq -y install curl git make gcc g++ svelte \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Go
