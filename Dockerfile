@@ -8,7 +8,7 @@ RUN node -v
 
 # Install basic dependencies
 RUN apt-get -qq update \
-  && apt-get -qq -y install curl git make gcc g++ svelte \
+  && apt-get -qq -y install curl git make gcc g++ \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Go
@@ -27,6 +27,7 @@ RUN bud version
 # Build your project for production
 WORKDIR /app
 COPY . . 
+RUN npm install
 RUN bud build
 EXPOSE 3000
 
