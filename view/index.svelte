@@ -1,42 +1,25 @@
 <script>
-  import Head from './Head.svelte'
-  import Foot from './Foot.svelte'
-  export let blogs = []
+  import Head from "./Head.svelte";
+  import Foot from "./Foot.svelte";
 </script>
 
 <Head />
 
-<div class="containter px-5">
+<body>
+  <div class="containter px-5 text-center">
+    <h1 class="display-1">warrenb95</h1>
 
-    <h1>Blog Index</h1>
-
-    <table class="table">
-      {#if blogs.length > 0}
-        <thead>
-          {#each Object.keys(blogs[0]) as key}
-            <th scope="col">{key}</th>
-          {/each}
-        </thead>
-      {/if}
-            <tbody>
-      {#each blogs as blog}
-        <tr>
-          {#each Object.keys(blog) as key}
-            {#if key.toLowerCase() === "id"}
-              <td><a href={`/${blog.id || 0}`}>{blog[key]}</a></td>
-            {:else}
-              <td>{blog[key]}</td>
-            {/if}
-          {/each}
-        </tr>
-      {/each}
-            </tbody>
-    </table>
-
-    <br />
-
-    <a href={`/new`}>New Blog</a>
-
-</div>
+    <div class="containter-fluid">
+      <p>
+        This is the start of my personal website and blog! I'm planning on
+        updating this website every 2 weeks.
+      </p>
+      <p>
+        <strong>Watch this space 😄</strong>
+        <small>2023-01-05</small>
+      </p>
+    </div>
+  </div>
+</body>
 
 <Foot />
