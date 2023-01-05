@@ -27,6 +27,7 @@ RUN bud version
 # Build your project for production
 WORKDIR /app
 COPY . . 
+RUN go mod download
 RUN npm install
 RUN bud build
 EXPOSE 3000
