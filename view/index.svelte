@@ -12,7 +12,7 @@
       <h1 class="display-5">What's happening</h1>
       <p>
         This is the start of my personal website and blog! I'm planning on
-        updating this website every 2 weeks.
+        updating this website monthly 🤞.
       </p>
     </div>
   </div>
@@ -21,7 +21,7 @@
     <div class="col-md-8" />
     <div class="col-md-4">
       <div class="position-sticky">
-        <div class="p-2 m-4 bg-light rounded">
+        <div class="p-2 bg-light rounded">
           <h4>log</h4>
           <ul class="list-unstyled">
             <li>
@@ -29,8 +29,8 @@
               Watch this space 😄
             </li>
             <li>
-              <small>2023-01-16</small>
-              Added about page
+              <small>2023-01-18</small>
+              Added the about page
             </li>
           </ul>
         </div>

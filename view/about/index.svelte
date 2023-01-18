@@ -7,7 +7,7 @@
 
 <main>
   <div class="container">
-    <h1 class="display-1 text-center">🤔 about me</h1>
+    <h1 class="display-1 text-center">🤓 about me</h1>
     <br />
 
     <div class="container">
@@ -19,28 +19,27 @@
             alt="me"
           />
         </div>
-        <div class="col-md-8 p-4">
+        <div class="col-md-8 p-4 bg-light rounded-5">
           <ul>
-            <li>
+            <li class="lead">
               Hi I'm Warren! I'm a backend software engineer based in the south
               east of England.
             </li>
-            <li>
+            <li class="lead">
               I graduated the University of Brighton in 2022 and have been
               working since then as a backend developer in golang. I work on
               microservices deployed to kubernetes and containterized with
               docker.
             </li>
-            <li>
-              The purpose of this website is for it to be a dumping ground for
-              things that I've learnt in my last 2 years as well as things I'm
-              currenltly learning about, or things that I'm struggling with as a
-              backend engineer.
+            <li class="lead">
+              The purpose of this website is to be a dumping ground for things
+              that I've learnt, things that I'm currently learning about and
+              anything that I'm struggling with as a backend engineer.
             </li>
-            <li>
-              I'm planning to update the website every 2 weeks and will add a
-              log of the updates made so you can follow along 😄 Thanks for
-              stopping by and I hope you enjoy!
+            <li class="lead">
+              I'm planning to update the website monthly and will add a log of
+              the updates made so you can follow along 😄 Thanks for stopping by
+              and I hope you enjoy!
             </li>
           </ul>
         </div>
