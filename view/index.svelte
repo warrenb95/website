@@ -7,8 +7,8 @@
 
 <div class="container text-center">
   <h1 class="display-1 mb-4">warrenb95</h1>
-  <div class="row py-2 ">
-    <div class="p-4 m-4 bg-light rounded-4">
+  <div class="row">
+    <div class="col-md-12 p-4 my-4 bg-light rounded-4">
       <h1 class="display-5">What's happening</h1>
       <p>
         This is the start of my personal website and blog! I'm planning on
