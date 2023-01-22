@@ -2,7 +2,10 @@ module github.com/warrenb95/website
 
 go 1.19
 
-require github.com/livebud/bud v0.2.5
+require (
+	github.com/gomarkdown/markdown v0.0.0-20221013030248-663e2500819c
+	github.com/livebud/bud v0.2.5
+)
 
 require (
 	github.com/ajg/form v1.5.2-0.20200323032839-9aeb3cf462e1 // indirect

@@ -1,6 +1,8 @@
 <script>
   import Head from "./Head.svelte";
   import Foot from "./Foot.svelte";
+
+  export let blogs = [];
 </script>
 
 <Head />
@@ -18,7 +20,11 @@
   </div>
 
   <div class="row">
-    <div class="col-md-8" />
+    <div class="col-md-8">
+      {#each blogs as blog}
+        {@html blog.title}
+      {/each}
+    </div>
     <div class="col-md-4">
       <div class="position-sticky">
         <div class="p-2 bg-light rounded">
