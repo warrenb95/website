@@ -4,7 +4,9 @@ import (
 	context "context"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gomarkdown/markdown"
 )
 
@@ -34,8 +36,18 @@ func (c *Controller) Index(ctx context.Context) (blogs []*Blog, err error) {
 
 	for _, de := range blogDir {
 		if de.Type().IsRegular() {
+			fname := strings.TrimSuffix(de.Name(), ".md")
+
+			fbytes, err := os.ReadFile(filepath.Join(blogPath, de.Name()))
+			if err != nil {
+				return nil, err
+			}
+
+			output := shrinkContent(fbytes, 200)
+
 			retBlogs = append(retBlogs, &Blog{
-				Title: de.Name(),
+				Title:   fname,
+				Content: string(output),
 			})
 		}
 	}
@@ -57,4 +69,30 @@ func (c *Controller) Show(ctx context.Context, title string) (blog *Blog, err er
 		Title:   title,
 		Content: string(output),
 	}, nil
+}
+
+func shrinkContent(content []byte, byteCount int) []byte {
+	var shrunkContent []byte
+
+	htmlContent := markdown.ToHTML(content, nil, nil)
+	htmlReader := strings.NewReader(string(htmlContent))
+
+	doc, err := goquery.NewDocumentFromReader(htmlReader)
+	if err != nil {
+		// TODO: handle error
+	}
+
+	var count int
+	doc.Find("p").Each(
+		func(i int, s *goquery.Selection) {
+			if byteCount < count {
+				return
+			}
+
+			shrunkContent = append(shrunkContent, []byte(s.Text())...)
+			count += s.Length()
+		},
+	)
+
+	return append(shrunkContent[:byteCount], []byte("...")...)
 }

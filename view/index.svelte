@@ -22,7 +22,7 @@
   <div class="row">
     <div class="col-md-8">
       {#each blogs as blog}
-        {@html blog.title}
+        {@html blog.content}
       {/each}
     </div>
     <div class="col-md-4">
