@@ -8,7 +8,7 @@
 <Head />
 
 <div class="container">
-  <h1 class="display-1 mb-4 text-center">{blog.title}</h1>
+  <h1 class="display-1 mb-4 text-center"><strong>{blog.title}</strong></h1>
   <div class="row">
     {@html blog.content}
   </div>
