@@ -22,12 +22,40 @@
   <div class="row">
     <div class="col-md-8">
       {#each blogs as blog}
-        {@html blog.content}
+        <div class="card mb-3 bg-light rounded-4">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img
+                src={blog.image_path}
+                class="img-fluid rounded"
+                alt="markdown file"
+              />
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{blog.title}</h5>
+                <p class="card-text">{blog.content}</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    Last updated {blog.last_updated} ago
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="d-grid gap-2">
+              <a href="/{blog.title}" class="btn btn-primary btn-lg m-2"
+                >View blog</a
+              >
+            </div>
+          </div>
+        </div>
       {/each}
     </div>
     <div class="col-md-4">
       <div class="position-sticky">
-        <div class="p-2 bg-light rounded">
+        <div class="p-2 bg-light rounded-4">
           <h4>log</h4>
           <ul class="list-unstyled">
             <li>

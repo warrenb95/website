@@ -1,30 +1,17 @@
 <script>
-  export let blog = {}
+  import Head from "./Head.svelte";
+  import Foot from "./Foot.svelte";
+
+  export let blog = {};
 </script>
 
-<h1>Show Blog</h1>
+<Head />
 
-<table border="1" cellpadding="10">
-  <thead>
-    {#each Object.keys(blog) as key}
-      <th>{key}</th>
-    {/each}
-  </thead>
-  <tr>
-    {#each Object.keys(blog) as key}
-      <td>{blog[key]}</td>
-    {/each}
-  </tr>
-</table>
+<div class="container">
+  <h1 class="display-1 mb-4 text-center">{blog.title}</h1>
+  <div class="row">
+    {@html blog.content}
+  </div>
+</div>
 
-<br />
-
-<a href={`/`}>Back</a>
-<span> | </span>
-<a href={`/${blog.id || 0}/edit`}>Edit</a>
-
-<style>
-  table {
-    border-collapse: collapse;
-  }
-</style>
+<Foot />

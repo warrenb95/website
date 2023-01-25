@@ -2,9 +2,11 @@ package controller
 
 import (
 	context "context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gomarkdown/markdown"
@@ -20,8 +22,11 @@ type Controller struct {
 
 // Blog struct
 type Blog struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title           string    `json:"title"`
+	Content         string    `json:"content"`
+	LastUpdated     string    `json:"last_updated"`
+	UpdatedDataTime time.Time `json:"updated_date_time"`
+	ImagePath       string    `json:"image_path"`
 }
 
 // Index of blogs
@@ -43,11 +48,20 @@ func (c *Controller) Index(ctx context.Context) (blogs []*Blog, err error) {
 				return nil, err
 			}
 
-			output := shrinkContent(fbytes, 200)
+			output := shrinkContent(fbytes, 400)
+
+			finfo, err := de.Info()
+			if err != nil {
+				return nil, err
+			}
+
+			lastUpdatedDuration := time.Now().UTC().Sub(finfo.ModTime().UTC())
 
 			retBlogs = append(retBlogs, &Blog{
-				Title:   fname,
-				Content: string(output),
+				Title:       fname,
+				Content:     string(output),
+				LastUpdated: durationToString(lastUpdatedDuration),
+				ImagePath:   fmt.Sprintf("/images/%s.png", fname),
 			})
 		}
 	}
@@ -57,8 +71,8 @@ func (c *Controller) Index(ctx context.Context) (blogs []*Blog, err error) {
 
 // Show blog
 // GET :id
-func (c *Controller) Show(ctx context.Context, title string) (blog *Blog, err error) {
-	fbytes, err := os.ReadFile(filepath.Join(blogPath, title))
+func (c *Controller) Show(ctx context.Context, id string) (blog *Blog, err error) {
+	fbytes, err := os.ReadFile(filepath.Join(blogPath, id+".md"))
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +80,7 @@ func (c *Controller) Show(ctx context.Context, title string) (blog *Blog, err er
 	output := markdown.ToHTML(fbytes, nil, nil)
 
 	return &Blog{
-		Title:   title,
+		Title:   id,
 		Content: string(output),
 	}, nil
 }
@@ -79,7 +93,7 @@ func shrinkContent(content []byte, byteCount int) []byte {
 
 	doc, err := goquery.NewDocumentFromReader(htmlReader)
 	if err != nil {
-		// TODO: handle error
+		return shrunkContent
 	}
 
 	var count int
@@ -95,4 +109,17 @@ func shrinkContent(content []byte, byteCount int) []byte {
 	)
 
 	return append(shrunkContent[:byteCount], []byte("...")...)
+}
+
+func durationToString(dur time.Duration) string {
+	var ret string
+	switch {
+	case dur.Hours() > 24:
+		days := int(dur.Round(time.Hour*24).Hours() / 24)
+		ret = fmt.Sprintf("%dd", days)
+	default:
+		ret = dur.String()
+	}
+
+	return ret
 }
