@@ -21,8 +21,22 @@ My bud application at the start is very simple and consists of a single page wit
 ## Docker file
 
 To be able to run the app anywhere in the simplest way possible I decided to containerize it and run it on [docker](https://www.docker.com/).
-This would allow me to run the app anywhere that docker installed, I won't have to worry about installing programming languages, dependencies or anything else; just install docker and run the container.
+This would allow me to run the app anywhere docker is installed, I won't have to worry about installing programming languages, dependencies or anything else; just install docker and run the container.
 I was lucky enought to find a [docker file](https://github.com/livebud/bud/blob/main/contributing/Dockerfile) on the bud repo and I used this as my base, I then added a couple extra commands to expose port `:3000` and run the application.
+
+
+I update the image when I saw that the image size was `1.82GB`.
+
+![previous docker image size of 1.82GB](/images/docker_size_before.PNG)
+
+I created a multi build image, so I'd have the first part of the dockerfile pull in all the dependencies and create the executable to run the website.
+I then copied this executable onto a different image that didn't have the bloat of the dependencies; the executable packages everything it needs to run the website so we don't need anything else on the container.
+Using this multi build method I was able to get the image size down to `173MB`, that's 10 times smaller, not a bad reduction in size.
+
+![newer docker image size of 177MB](/images/docker_size_after.PNG)
+
+Below you can see the dockerfile and how I've used a `build` image to build the project and then I copied the executable into a smaller base image `debian:latest`.
+I could have used a smaller image to run the project but I had to use debian because this the OS that I built the executable on.
 
 ```dockerfile
 ARG NODE_VERSION=19.0.0
