@@ -118,7 +118,9 @@ func durationToString(dur time.Duration) string {
 		days := int(dur.Round(time.Hour*24).Hours() / 24)
 		ret = fmt.Sprintf("%dd", days)
 	default:
-		ret = dur.String()
+		hours := int(dur.Round(time.Hour))
+		minutes := int(dur.Minutes())
+		ret = fmt.Sprintf("%dh %dm", hours, minutes)
 	}
 
 	return ret

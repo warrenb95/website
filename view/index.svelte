@@ -66,6 +66,10 @@
               <small>2023-01-18</small>
               Added the about page
             </li>
+            <li>
+              <small>2023-01-30</small>
+              Blog cards and blog pages
+            </li>
           </ul>
         </div>
       </div>

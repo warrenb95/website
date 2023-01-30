@@ -1,22 +1,16 @@
 # The start
 
-* [ ] Creating the bud project (simple server)
-* [ ] bud controllers and views (super high level)
-  * [ ] what is svelte?
-  * [ ] cards and injecting code/html
-* [ ] multi part dockerfile
-  * [ ] image size before and after
-* [X] Creating the ec2 and alb, https listener with TLS certs
-* [X] Registering the domain and creating the records to route to alb
-
-
 ## Simple bud server
 
 I stumbled across this [go](https://go.dev/) project called [bud](https://github.com/livebud/bud) that looked very interesting having worked with other languages before that had their own full stack solutions like [django](https://www.djangoproject.com/).
 Bud looked like a cool project and I'd been planning on building a fullstack website to host blogs and logs of things that I'm learning about or solutions to software engineering related issues; essential a brain dump of everything relating to programming, architecture, ci/cd and cloud.
 
-I won't go into the details of how to implement a bud server as this blog isn't focused on that. I'd recommend you check out the github [repo](https://github.com/livebud/bud) for the video tutorial and links to the documentation. 
-My bud application at the start is very simple and consists of a single page with a nav bar, title and small paragraph explaining that this is my website and I'm planning to post/update it every 2 weeks. I also used [bootstrap](https://getbootstrap.com/) to style the website because I'm very lazy and am not a front end developer 😄
+I won't go into the details of how to implement a bud server in this blog, but should release something in the next few months explaining what I've done 😄.
+I'd recommend you check out the [github repo](https://github.com/livebud/bud) for the video tutorial and links to the documentation. 
+
+My bud application at the start is very simple and consists of a single page with a nav bar, title and small paragraph explaining that this is my website and I'm planning to post/update it month.
+
+I also used [bootstrap](https://getbootstrap.com/) to style the website because I'm very lazy and am not a front end developer 😄
 
 ## Docker file
 
@@ -117,6 +111,10 @@ To wrap this up what I've done so far is:
 3. Set up an ec2 instance and pulled on the docker container and started the server
 4. Create an ALB and routed traffic to my ec2 instance
 5. Registered my domain `warrenb95.com` and then created DNS records to route the traffic to my ALB
+
+## What's next?
+
+I'm planning on writing blogs on each of these topics to explain then in more detail and give more examples of how I've used the different technologies.
 
 Thank you so much for checking out the blog post and the website! 😄 
 
