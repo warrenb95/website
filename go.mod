@@ -2,10 +2,15 @@ module github.com/warrenb95/website
 
 go 1.19
 
-require github.com/livebud/bud v0.2.5
+require (
+	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/gomarkdown/markdown v0.0.0-20221013030248-663e2500819c
+	github.com/livebud/bud v0.2.5
+)
 
 require (
 	github.com/ajg/form v1.5.2-0.20200323032839-9aeb3cf462e1 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/evanw/esbuild v0.14.11 // indirect
 	github.com/gedex/inflector v0.0.0-20170307190818-16278e9db813 // indirect
@@ -15,6 +20,7 @@ require (
 	github.com/timewasted/go-accept-headers v0.0.0-20130320203746-c78f304b1b09 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/sys v0.4.0 // indirect
 )

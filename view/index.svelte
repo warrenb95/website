@@ -1,12 +1,14 @@
 <script>
   import Head from "./Head.svelte";
   import Foot from "./Foot.svelte";
+
+  export let blogs = [];
 </script>
 
 <Head />
 
 <div class="container text-center">
-  <h1 class="display-1 mb-4">warrenb95</h1>
+  <h1 class="display-1 mb-4"><strong>warrenb95</strong></h1>
   <div class="row">
     <div class="col-md-12 p-4 my-4 bg-light rounded-4">
       <h1 class="display-5">What's happening</h1>
@@ -18,10 +20,42 @@
   </div>
 
   <div class="row">
-    <div class="col-md-8" />
+    <div class="col-md-8">
+      {#each blogs as blog}
+        <div class="card mb-3 bg-light rounded-4">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img
+                src={blog.image_path}
+                class="img-fluid rounded"
+                alt="markdown file"
+              />
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{blog.title}</h5>
+                <p class="card-text">{blog.content}</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    Last updated {blog.last_updated} ago
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="d-grid gap-2">
+              <a href="/{blog.title}" class="btn btn-primary btn-lg m-2"
+                >View blog</a
+              >
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
     <div class="col-md-4">
       <div class="position-sticky">
-        <div class="p-2 bg-light rounded">
+        <div class="p-2 bg-light rounded-4">
           <h4>log</h4>
           <ul class="list-unstyled">
             <li>
@@ -31,6 +65,10 @@
             <li>
               <small>2023-01-18</small>
               Added the about page
+            </li>
+            <li>
+              <small>2023-01-30</small>
+              Blog cards and blog pages
             </li>
           </ul>
         </div>
