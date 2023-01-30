@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	blogPath = "./public/blogs/"
+	blogPath = "/blogs/"
 )
 
 // Controller for blogs
