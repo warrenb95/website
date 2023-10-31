@@ -1,2 +1,1 @@
-node_modules/
-bud/
+*.null-ls*
