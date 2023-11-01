@@ -1,9 +1,0 @@
-{
-  "name": ".",
-  "private": true,
-  "dependencies": {
-    "bootstrap": "^5.2.2",
-    "livebud": "0.2.5",
-    "svelte": "3.47.0"
-  }
-}
