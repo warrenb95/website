@@ -12,6 +12,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gomarkdown/markdown"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 // Blog struct
 type Blog struct {
 	Title           string
-	Content         string
+	Content         any
 	LastUpdated     string
 	UpdatedDataTime time.Time
 	ImagePath       string
@@ -63,34 +64,43 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	index := template.Must(template.ParseGlob("./views/*"))
-	if err := index.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
+	tmpl := template.Must(template.ParseGlob("./views/*"))
+	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
 		log.Fatalf("can't execute index template: %v", err)
 	}
 }
 
 func about(w http.ResponseWriter, r *http.Request) {
-	index := template.Must(template.ParseGlob("./views/*"))
-	if err := index.ExecuteTemplate(w, "about.html", nil); err != nil {
+	tmpl := template.Must(template.ParseGlob("./views/*"))
+	if err := tmpl.ExecuteTemplate(w, "about.html", nil); err != nil {
 		log.Fatalf("can't execute about.html template: %v", err)
 	}
 }
 
-// Show blog
-// GET :id
-// func (c *Controller) Show(ctx context.Context, id string) (blog *Blog, err error) {
-// 	fbytes, err := os.ReadFile(filepath.Join(blogPath, id+".md"))
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// show, GET :id
+func show(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		// TODO: redirect back to the index page.
+		log.Fatal("id is empty when showing blog")
+	}
 
-// 	output := markdown.ToHTML(fbytes, nil, nil)
+	fbytes, err := os.ReadFile(filepath.Join(blogPath, id+".md"))
+	if err != nil {
+		log.Fatalf("can't read blog file: %v", err)
+	}
 
-// 	return &Blog{
-// 		Title:   id,
-// 		Content: string(output),
-// 	}, nil
-// }
+	output := markdown.ToHTML(fbytes, nil, nil)
+	blog := &Blog{
+		Title:   id,
+		Content: template.HTML(string(output)),
+	}
+
+	tmpl := template.Must(template.ParseGlob("./views/*"))
+	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
+		log.Fatalf("can't execute show template: %v", err)
+	}
+}
 
 func shrinkContent(content []byte, byteCount int) []byte {
 	var shrunkContent []byte
@@ -147,14 +157,17 @@ func main() {
 		log.SetOutput(f)
 	}
 
+	r := mux.NewRouter()
+
 	// Need to serve the static web content e.g. images at /static/assets/images/image.png.
 	staticHandler := http.FileServer(http.Dir("assets/"))
-	http.Handle("/static/", http.StripPrefix("/static/", staticHandler))
+	r.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
 	// Server handlers.
-	http.HandleFunc("/", index)
-	http.HandleFunc("/about", about)
+	r.HandleFunc("/", index)
+	r.HandleFunc("/about", about)
+	r.HandleFunc("/blog/{id}", show)
 
 	log.Printf("Listening on port %s\n\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
