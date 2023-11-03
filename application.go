@@ -69,6 +69,13 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func about(w http.ResponseWriter, r *http.Request) {
+	index := template.Must(template.ParseGlob("./views/*"))
+	if err := index.ExecuteTemplate(w, "about.html", nil); err != nil {
+		log.Fatalf("can't execute about.html template: %v", err)
+	}
+}
+
 // Show blog
 // GET :id
 // func (c *Controller) Show(ctx context.Context, id string) (blog *Blog, err error) {
@@ -146,6 +153,7 @@ func main() {
 
 	// Server handlers.
 	http.HandleFunc("/", index)
+	http.HandleFunc("/about", about)
 
 	log.Printf("Listening on port %s\n\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
