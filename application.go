@@ -1,67 +1,76 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-	"time"
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gomarkdown/markdown"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/mux"
 )
 
 var (
-	blogPath  = "public/blogs/"
-	imagePath = "static/images/"
+	s3ImageAddr = "https://warrenb95-blog.s3.eu-west-2.amazonaws.com/blogs/images/"
 )
 
 // Blog struct
 type Blog struct {
-	Title           string
-	Content         any
-	LastUpdated     string
-	UpdatedDataTime time.Time
-	ImagePath       string
+	ID            string
+	Title         string
+	ThumbnailPath string
+	Uploaded      string
+	Summary       string
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	blogDir, err := os.ReadDir(blogPath)
+	// Load the Shared AWS Configuration (~/.aws/config)
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
-	var retBlogs []*Blog
+	// Create an Amazon S3 service client
+	client := s3.NewFromConfig(cfg)
 
-	for _, de := range blogDir {
-		if de.Type().IsRegular() {
-			fname := strings.TrimSuffix(de.Name(), ".md")
+	// Get the first page of results for ListObjectsV2 for a bucket
+	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: aws.String("warrenb95-blog"),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-			fbytes, err := os.ReadFile(filepath.Join(blogPath, de.Name()))
-			if err != nil {
-				log.Fatal(err.Error())
-			}
+	log.Println("first page results:")
+	for _, object := range output.Contents {
+		log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
+	}
 
-			output := shrinkContent(fbytes, 400)
+	// Using the Config value, create the DynamoDB client
+	svc := dynamodb.NewFromConfig(cfg)
+	var retBlogs []Blog
+	out, err := svc.Scan(context.Background(), &dynamodb.ScanInput{
+		TableName: aws.String("blogs"),
+	})
+	if err != nil {
+		log.Fatalf("scanning blogs dynamodb: %v", err)
+	}
 
-			finfo, err := de.Info()
-			if err != nil {
-				log.Fatal(err.Error())
-			}
+	err = attributevalue.UnmarshalListOfMaps(out.Items, &retBlogs)
+	if err != nil {
+		log.Fatalf("unmarshalling blogs: %v", err)
+	}
 
-			lastUpdatedDuration := time.Now().UTC().Sub(finfo.ModTime().UTC())
-
-			retBlogs = append(retBlogs, &Blog{
-				Title:       fname,
-				Content:     string(output),
-				LastUpdated: durationToString(lastUpdatedDuration),
-				ImagePath:   filepath.Join(imagePath, fmt.Sprintf("%s.png", fname)),
-			})
-		}
+	for _, b := range retBlogs {
+		b.ThumbnailPath = filepath.Join(s3ImageAddr, b.Title+".png")
+		log.Println(b.ThumbnailPath)
+		log.Println(b.Title)
 	}
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
@@ -78,70 +87,72 @@ func about(w http.ResponseWriter, r *http.Request) {
 }
 
 // show, GET :id
-func show(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
-	if id == "" {
-		// TODO: redirect back to the index page.
-		log.Fatal("id is empty when showing blog")
-	}
+// func show(w http.ResponseWriter, r *http.Request) {
+// 	// Load the Shared AWS Configuration (~/.aws/config)
+// 	// cfg, err := config.LoadDefaultConfig(context.TODO())
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
 
-	fbytes, err := os.ReadFile(filepath.Join(blogPath, id+".md"))
-	if err != nil {
-		log.Fatalf("can't read blog file: %v", err)
-	}
+// 	// // Create an Amazon S3 service client
+// 	// client := s3.NewFromConfig(cfg)
 
-	output := markdown.ToHTML(fbytes, nil, nil)
-	blog := &Blog{
-		Title:   id,
-		Content: template.HTML(string(output)),
-	}
+// 	// // Get the first page of results for ListObjectsV2 for a bucket
+// 	// output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+// 	// 	Bucket: aws.String("warrenb95-blog"),
+// 	// })
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
 
-	tmpl := template.Must(template.ParseGlob("./views/*"))
-	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
-		log.Fatalf("can't execute show template: %v", err)
-	}
-}
+// 	title := mux.Vars(r)["title"]
+// 	if title == "" {
+// 		// TODO: redirect back to the index page.
+// 		log.Fatal("id is empty when showing blog")
+// 	}
 
-func shrinkContent(content []byte, byteCount int) []byte {
-	var shrunkContent []byte
+// 	fbytes, err := os.ReadFile(filepath.Join(blogPath, title+".md"))
+// 	if err != nil {
+// 		log.Fatalf("can't read blog file: %v", err)
+// 	}
 
-	htmlContent := markdown.ToHTML(content, nil, nil)
-	htmlReader := strings.NewReader(string(htmlContent))
+// 	output := markdown.ToHTML(fbytes, nil, nil)
+// 	blog := &Blog{
+// 		Title:   title,
+// 		Content: template.HTML(string(output)),
+// 	}
 
-	doc, err := goquery.NewDocumentFromReader(htmlReader)
-	if err != nil {
-		return shrunkContent
-	}
+// 	tmpl := template.Must(template.ParseGlob("./views/*"))
+// 	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
+// 		log.Fatalf("can't execute show template: %v", err)
+// 	}
+// }
 
-	var count int
-	doc.Find("p").Each(
-		func(i int, s *goquery.Selection) {
-			if byteCount < count {
-				return
-			}
+// func shrinkContent(content []byte, byteCount int) []byte {
+// 	var shrunkContent []byte
 
-			shrunkContent = append(shrunkContent, []byte(s.Text())...)
-			count += s.Length()
-		},
-	)
+// 	htmlContent := markdown.ToHTML(content, nil, nil)
+// 	htmlReader := strings.NewReader(string(htmlContent))
 
-	return append(shrunkContent[:byteCount], []byte("...")...)
-}
+// 	doc, err := goquery.NewDocumentFromReader(htmlReader)
+// 	if err != nil {
+// 		return shrunkContent
+// 	}
 
-func durationToString(dur time.Duration) string {
-	var ret string
-	switch {
-	case dur.Hours() > 24:
-		days := int(dur.Round(time.Hour*24).Hours() / 24)
-		ret = fmt.Sprintf("%dd", days)
-	default:
-		hours := int(dur.Round(time.Hour))
-		minutes := int(dur.Minutes())
-		ret = fmt.Sprintf("%dh %dm", hours, minutes)
-	}
+// 	var count int
+// 	doc.Find("p").Each(
+// 		func(i int, s *goquery.Selection) {
+// 			if byteCount < count {
+// 				return
+// 			}
 
-	return ret
-}
+// 			shrunkContent = append(shrunkContent, []byte(s.Text())...)
+// 			count += s.Length()
+// 		},
+// 	)
+
+// 	return append(shrunkContent[:byteCount], []byte("...")...)
+// }
 
 func main() {
 	// AWS Elastic Beanstalk runs off port 5000.
@@ -166,7 +177,7 @@ func main() {
 	// Server handlers.
 	r.HandleFunc("/", index)
 	r.HandleFunc("/about", about)
-	r.HandleFunc("/blog/{id}", show)
+	// r.HandleFunc("/blog/{id}", show)
 
 	log.Printf("Listening on port %s\n\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
