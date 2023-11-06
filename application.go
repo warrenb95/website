@@ -37,22 +37,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	cfg.Region = "eu-west-2"
 
-	// Create an Amazon S3 service client
-	client := s3.NewFromConfig(cfg)
-
-	// Get the first page of results for ListObjectsV2 for a bucket
-	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
-		Bucket: aws.String("warrenb95-blog"),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("first page results:")
-	for _, object := range output.Contents {
-		log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
-	}
-
 	// Using the Config value, create the DynamoDB client
 	svc := dynamodb.NewFromConfig(cfg)
 	var retBlogs []Blog
