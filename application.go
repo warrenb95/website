@@ -52,6 +52,10 @@ func index(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("unmarshalling blogs: %v", err)
 	}
 
+	for _, b := range retBlogs {
+		log.Println(b.ThumbnailPath)
+	}
+
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
 		log.Fatalf("can't execute index template: %v", err)
