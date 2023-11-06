@@ -1,67 +1,70 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gomarkdown/markdown"
 	"github.com/gorilla/mux"
 )
 
-var (
-	blogPath  = "public/blogs/"
-	imagePath = "static/images/"
-)
-
 // Blog struct
 type Blog struct {
-	Title           string
-	Content         any
-	LastUpdated     string
-	UpdatedDataTime time.Time
-	ImagePath       string
+	ID            string
+	Title         string
+	ThumbnailPath string
+	Uploaded      string
+	Summary       string
+	Content       template.HTML
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	blogDir, err := os.ReadDir(blogPath)
+	// Load the Shared AWS Configuration (~/.aws/config)
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
-	var retBlogs []*Blog
+	// Create an Amazon S3 service client
+	client := s3.NewFromConfig(cfg)
 
-	for _, de := range blogDir {
-		if de.Type().IsRegular() {
-			fname := strings.TrimSuffix(de.Name(), ".md")
+	// Get the first page of results for ListObjectsV2 for a bucket
+	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: aws.String("warrenb95-blog"),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-			fbytes, err := os.ReadFile(filepath.Join(blogPath, de.Name()))
-			if err != nil {
-				log.Fatal(err.Error())
-			}
+	log.Println("first page results:")
+	for _, object := range output.Contents {
+		log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
+	}
 
-			output := shrinkContent(fbytes, 400)
+	// Using the Config value, create the DynamoDB client
+	svc := dynamodb.NewFromConfig(cfg)
+	var retBlogs []Blog
+	out, err := svc.Scan(context.Background(), &dynamodb.ScanInput{
+		TableName: aws.String("blogs"),
+	})
+	if err != nil {
+		log.Fatalf("scanning blogs dynamodb: %v", err)
+	}
 
-			finfo, err := de.Info()
-			if err != nil {
-				log.Fatal(err.Error())
-			}
-
-			lastUpdatedDuration := time.Now().UTC().Sub(finfo.ModTime().UTC())
-
-			retBlogs = append(retBlogs, &Blog{
-				Title:       fname,
-				Content:     string(output),
-				LastUpdated: durationToString(lastUpdatedDuration),
-				ImagePath:   filepath.Join(imagePath, fmt.Sprintf("%s.png", fname)),
-			})
-		}
+	err = attributevalue.UnmarshalListOfMaps(out.Items, &retBlogs)
+	if err != nil {
+		log.Fatalf("unmarshalling blogs: %v", err)
 	}
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
@@ -79,68 +82,60 @@ func about(w http.ResponseWriter, r *http.Request) {
 
 // show, GET :id
 func show(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
-	if id == "" {
+	// Load the Shared AWS Configuration (~/.aws/config)
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	title := mux.Vars(r)["title"]
+	if title == "" {
 		// TODO: redirect back to the index page.
 		log.Fatal("id is empty when showing blog")
 	}
 
-	fbytes, err := os.ReadFile(filepath.Join(blogPath, id+".md"))
+	// Using the Config value, create the DynamoDB client
+	svc := dynamodb.NewFromConfig(cfg)
+	item, err := svc.GetItem(context.Background(), &dynamodb.GetItemInput{
+		TableName: aws.String("blogs"),
+		Key: map[string]types.AttributeValue{
+			"title": &types.AttributeValueMemberS{Value: title},
+		},
+	})
+	if err != nil {
+		log.Fatalf("scanning blogs dynamodb: %v", err)
+	}
+
+	var blog Blog
+	err = attributevalue.UnmarshalMap(item.Item, &blog)
+	if err != nil {
+		log.Fatalf("unmarshalling blog: %v", err)
+	}
+
+	// Create an Amazon S3 service client
+	client := s3.NewFromConfig(cfg)
+
+	// Get the first page of results for ListObjectsV2 for a bucket
+	object, err := client.GetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String("warrenb95-blog"),
+		Key:    aws.String(fmt.Sprintf("blogs/%s.md", title)),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fbytes, err := io.ReadAll(object.Body)
 	if err != nil {
 		log.Fatalf("can't read blog file: %v", err)
 	}
 
 	output := markdown.ToHTML(fbytes, nil, nil)
-	blog := &Blog{
-		Title:   id,
-		Content: template.HTML(string(output)),
-	}
+	blog.Content = template.HTML(string(output))
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
 		log.Fatalf("can't execute show template: %v", err)
 	}
-}
-
-func shrinkContent(content []byte, byteCount int) []byte {
-	var shrunkContent []byte
-
-	htmlContent := markdown.ToHTML(content, nil, nil)
-	htmlReader := strings.NewReader(string(htmlContent))
-
-	doc, err := goquery.NewDocumentFromReader(htmlReader)
-	if err != nil {
-		return shrunkContent
-	}
-
-	var count int
-	doc.Find("p").Each(
-		func(i int, s *goquery.Selection) {
-			if byteCount < count {
-				return
-			}
-
-			shrunkContent = append(shrunkContent, []byte(s.Text())...)
-			count += s.Length()
-		},
-	)
-
-	return append(shrunkContent[:byteCount], []byte("...")...)
-}
-
-func durationToString(dur time.Duration) string {
-	var ret string
-	switch {
-	case dur.Hours() > 24:
-		days := int(dur.Round(time.Hour*24).Hours() / 24)
-		ret = fmt.Sprintf("%dd", days)
-	default:
-		hours := int(dur.Round(time.Hour))
-		minutes := int(dur.Minutes())
-		ret = fmt.Sprintf("%dh %dm", hours, minutes)
-	}
-
-	return ret
 }
 
 func main() {
@@ -161,12 +156,12 @@ func main() {
 
 	// Need to serve the static web content e.g. images at /static/assets/images/image.png.
 	staticHandler := http.FileServer(http.Dir("assets/"))
-	r.Handle("/static/", http.StripPrefix("/static/", staticHandler))
+	http.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
 	// Server handlers.
 	r.HandleFunc("/", index)
 	r.HandleFunc("/about", about)
-	r.HandleFunc("/blog/{id}", show)
+	r.HandleFunc("/blog/{title}", show)
 
 	log.Printf("Listening on port %s\n\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
