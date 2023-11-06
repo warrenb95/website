@@ -72,6 +72,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cfg.Region = "eu-west-2"
 
 	title := mux.Vars(r)["title"]
 	if title == "" {
