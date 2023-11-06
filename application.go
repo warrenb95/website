@@ -23,7 +23,7 @@ import (
 type Blog struct {
 	ID            string
 	Title         string
-	ThumbnailPath string
+	ThumbnailPath string `dynamodbav:"thumbnail_path"`
 	Uploaded      string
 	Summary       string
 	Content       template.HTML
