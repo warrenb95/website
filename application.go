@@ -35,6 +35,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cfg.Region = "eu-west-2"
 
 	// Create an Amazon S3 service client
 	client := s3.NewFromConfig(cfg)
