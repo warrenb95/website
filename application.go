@@ -53,7 +53,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, b := range retBlogs {
-		log.Println(b.ThumbnailPath)
+		log.Printf("thumbnail_path: %s", b.ThumbnailPath)
 	}
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
