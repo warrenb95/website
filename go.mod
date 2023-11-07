@@ -3,7 +3,6 @@ module github.com/warrenb95/website
 go 1.21
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/aws/aws-sdk-go-v2 v1.22.1
 	github.com/aws/aws-sdk-go-v2/config v1.22.0
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.0
@@ -11,10 +10,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.42.0
 	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386
 	github.com/gorilla/mux v1.8.0
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.5.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.15.1 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.2 // indirect
@@ -33,5 +32,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.25.0 // indirect
 	github.com/aws/smithy-go v1.16.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 )
