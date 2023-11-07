@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -41,7 +40,7 @@ func NewServer(region string, logger *logrus.Logger) *Server {
 	// Load the Shared AWS Configuration (~/.aws/config)
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	cfg.Region = region
 
@@ -67,17 +66,20 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 		TableName: aws.String("blogs"),
 	})
 	if err != nil {
-		logger.Fatalf("scanning blogs dynamodb: %v", err)
+		logger.WithError(err).Error("Scanning blogs dynamodb table")
+		http.Error(w, "failed to list blogs", http.StatusInternalServerError)
 	}
 
 	err = attributevalue.UnmarshalListOfMaps(out.Items, &retBlogs)
 	if err != nil {
-		logger.Fatalf("unmarshalling blogs: %v", err)
+		logger.WithError(err).Error("Failed to UnmarshalListOfMaps return blogs")
+		http.Error(w, "failed to unmarshal return blogs from DB", http.StatusInternalServerError)
 	}
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
-		logger.Fatalf("can't execute index template: %v", err)
+		logger.WithError(err).Error("Failed to execute index template")
+		http.Error(w, "failed to execute index template", http.StatusInternalServerError)
 	}
 }
 
@@ -86,7 +88,8 @@ func (s *Server) About(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "about.html", nil); err != nil {
-		logger.Fatalf("can't execute about.html template: %v", err)
+		logger.WithError(err).Error("Failed to execute about template")
+		http.Error(w, "failed to execute about template", http.StatusInternalServerError)
 	}
 }
 
@@ -96,8 +99,10 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	title := mux.Vars(r)["title"]
 	if title == "" {
 		// TODO: redirect back to the index page.
-		logger.Fatal("id is empty when showing blog")
+		logger.Warn("Empty blog title in show request")
+		http.Error(w, "empty blog title", http.StatusBadRequest)
 	}
+	logger = logger.WithField("title", title)
 
 	// Using the Config value, create the DynamoDB client
 	item, err := s.dynamoDBClient.GetItem(context.Background(), &dynamodb.GetItemInput{
@@ -107,13 +112,15 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 	if err != nil {
-		logger.Fatalf("scanning blogs dynamodb: %v", err)
+		logger.WithError(err).Error("Failed to get blog data")
+		http.Error(w, "failed to get blog data", http.StatusInternalServerError)
 	}
 
 	var blog Blog
 	err = attributevalue.UnmarshalMap(item.Item, &blog)
 	if err != nil {
-		logger.Fatalf("unmarshalling blog: %v", err)
+		logger.WithError(err).Error("Failed unmarshal blog")
+		http.Error(w, "failed to unmarshal blog data", http.StatusInternalServerError)
 	}
 
 	// Get the first page of results for ListObjectsV2 for a bucket
@@ -122,12 +129,14 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		Key:    aws.String(fmt.Sprintf("blogs/%s.md", title)),
 	})
 	if err != nil {
-		logger.Fatal(err)
+		logger.WithError(err).Error("Failed to get blog content")
+		http.Error(w, "failed to get blog content", http.StatusInternalServerError)
 	}
 
 	fbytes, err := io.ReadAll(object.Body)
 	if err != nil {
-		logger.Fatalf("can't read blog file: %v", err)
+		logger.WithError(err).Error("Failed to read all blog content")
+		http.Error(w, "failed to read blog content", http.StatusInternalServerError)
 	}
 
 	output := markdown.ToHTML(fbytes, nil, nil)
@@ -135,6 +144,7 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
-		logger.Fatalf("can't execute show template: %v", err)
+		logger.WithError(err).Error("Failed to execute show template")
+		http.Error(w, "failed to exeute show templated", http.StatusInternalServerError)
 	}
 }
