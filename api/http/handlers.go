@@ -68,18 +68,21 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.WithError(err).Error("Scanning blogs dynamodb table")
 		http.Error(w, "failed to list blogs", http.StatusInternalServerError)
+		return
 	}
 
 	err = attributevalue.UnmarshalListOfMaps(out.Items, &retBlogs)
 	if err != nil {
 		logger.WithError(err).Error("Failed to UnmarshalListOfMaps return blogs")
 		http.Error(w, "failed to unmarshal return blogs from DB", http.StatusInternalServerError)
+		return
 	}
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
 		logger.WithError(err).Error("Failed to execute index template")
 		http.Error(w, "failed to execute index template", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -90,6 +93,7 @@ func (s *Server) About(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "about.html", nil); err != nil {
 		logger.WithError(err).Error("Failed to execute about template")
 		http.Error(w, "failed to execute about template", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -101,6 +105,7 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		// TODO: redirect back to the index page.
 		logger.Warn("Empty blog title in show request")
 		http.Error(w, "empty blog title", http.StatusBadRequest)
+		return
 	}
 	logger = logger.WithField("title", title)
 
@@ -114,6 +119,7 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.WithError(err).Error("Failed to get blog data")
 		http.Error(w, "failed to get blog data", http.StatusInternalServerError)
+		return
 	}
 
 	var blog Blog
@@ -121,6 +127,7 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.WithError(err).Error("Failed unmarshal blog")
 		http.Error(w, "failed to unmarshal blog data", http.StatusInternalServerError)
+		return
 	}
 
 	// Get the first page of results for ListObjectsV2 for a bucket
@@ -131,12 +138,14 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.WithError(err).Error("Failed to get blog content")
 		http.Error(w, "failed to get blog content", http.StatusInternalServerError)
+		return
 	}
 
 	fbytes, err := io.ReadAll(object.Body)
 	if err != nil {
 		logger.WithError(err).Error("Failed to read all blog content")
 		http.Error(w, "failed to read blog content", http.StatusInternalServerError)
+		return
 	}
 
 	output := markdown.ToHTML(fbytes, nil, nil)
@@ -146,5 +155,6 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {
 		logger.WithError(err).Error("Failed to execute show template")
 		http.Error(w, "failed to exeute show templated", http.StatusInternalServerError)
+		return
 	}
 }
