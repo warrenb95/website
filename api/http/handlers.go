@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"slices"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -77,6 +79,22 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to unmarshal return blogs from DB", http.StatusInternalServerError)
 		return
 	}
+
+	slices.SortFunc(retBlogs, func(a, b Blog) int {
+		timeA, err := time.Parse("2006-01-02T15:04:05-07:00", a.Uploaded)
+		if err != nil {
+			logger.WithError(err).Error("Failed to parse time for blog")
+			return 0
+		}
+
+		timeB, err := time.Parse("2006-01-02T15:04:05-07:00", b.Uploaded)
+		if err != nil {
+			logger.WithError(err).Error("Failed to parse time for blog")
+			return 0
+		}
+
+		return -1 * timeA.Compare(timeB)
+	})
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
