@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"slices"
+	"sort"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -80,20 +80,20 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slices.SortFunc(retBlogs, func(a, b Blog) int {
-		timeA, err := time.Parse("2006-01-02T15:04:05-07:00", a.Uploaded)
+	sort.Slice(retBlogs, func(i, j int) bool {
+		timeA, err := time.Parse("2006-01-02T15:04:05-07:00", retBlogs[i].Uploaded)
 		if err != nil {
 			logger.WithError(err).Error("Failed to parse time for blog")
-			return 0
+			return false
 		}
 
-		timeB, err := time.Parse("2006-01-02T15:04:05-07:00", b.Uploaded)
+		timeB, err := time.Parse("2006-01-02T15:04:05-07:00", retBlogs[j].Uploaded)
 		if err != nil {
 			logger.WithError(err).Error("Failed to parse time for blog")
-			return 0
+			return false
 		}
 
-		return -1 * timeA.Compare(timeB)
+		return !timeA.Before(timeB)
 	})
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
