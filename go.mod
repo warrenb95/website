@@ -11,6 +11,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386
 	github.com/gorilla/mux v1.8.0
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/net v0.18.0
 )
 
 require (
@@ -32,5 +33,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.25.0 // indirect
 	github.com/aws/smithy-go v1.16.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 )
