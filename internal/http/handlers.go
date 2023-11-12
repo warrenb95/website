@@ -1,12 +1,14 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
 	"io"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -18,6 +20,7 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	nhtml "golang.org/x/net/html"
 )
 
 // Blog struct
@@ -167,7 +170,40 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	output := markdown.ToHTML(fbytes, nil, nil)
-	blog.Content = template.HTML(string(output))
+	htmlContent := template.HTML(string(output))
+
+	doc, err := nhtml.Parse(strings.NewReader(string(htmlContent)))
+	if err != nil {
+		logger.WithError(err).Error("failed to parse html")
+		http.Error(w, "failed to parse html", http.StatusInternalServerError)
+		return
+	}
+
+	var imgClassAdder func(n *nhtml.Node)
+	imgClassAdder = func(n *nhtml.Node) {
+		if n.Type == nhtml.ElementNode && n.Data == "img" {
+			n.Attr = append(n.Attr, nhtml.Attribute{
+				Namespace: doc.Namespace,
+				Key:       "class",
+				Val:       "img-fluid",
+			})
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			imgClassAdder(c)
+		}
+	}
+	imgClassAdder(doc)
+
+	var b bytes.Buffer
+	err = nhtml.Render(&b, doc)
+	if err != nil {
+		logger.WithError(err).Error("Failed to render html to bytes")
+		http.Error(w, "failed to render html", http.StatusInternalServerError)
+		return
+	}
+
+	blog.Content = template.HTML(b.String())
 
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "show.html", blog); err != nil {

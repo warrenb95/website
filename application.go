@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	apihttp "github.com/warrenb95/website/api/http"
+	handler "github.com/warrenb95/website/internal/http"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	log := logrus.New()
 
-	s := apihttp.NewServer("eu-west-2", log)
+	s := handler.NewServer("eu-west-2", log)
 
 	r := mux.NewRouter()
 	// Middleware.
