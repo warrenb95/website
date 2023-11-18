@@ -15,7 +15,7 @@ func main() {
 	// AWS Elastic Beanstalk runs off port 5000.
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "80"
 	}
 
 	// Save the logs here for AWS Elastic Beanstalk.
