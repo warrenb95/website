@@ -105,6 +105,8 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to execute index template", http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) About(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +118,7 @@ func (s *Server) About(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to execute about template", http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
@@ -211,4 +214,6 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to exeute show templated", http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
