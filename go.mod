@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.25.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.42.0
 	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/net v0.18.0
 )
