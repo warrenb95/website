@@ -16,14 +16,15 @@
   <div class="row">
     <div class="col-md-8">
       {{range .}}
-      <div class="card text-white border-primary mb-3 rounded-4">
+      <div class="card bg-transparent mb-3 rounded-4">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src={{.ThumbnailPath}} class="img-fluid rounded" alt="blog image" />
+            <img src={{.ThumbnailPath}} class="img-thumbnail rounded" alt="blog image" />
           </div>
           <div class="col-md-8">
             <div class="card-body">
-              <h5 class="card-title">{{.Title}}</h5>
+              <!-- <h5 class="card-title">{{.Title}}</h5> -->
+              <h5><a href="/blog/{{.Title}}" class="m-2">View - {{.Title}}</a></h5>
               <p class="card-text">{{.Summary}}</p>
               <p class="card-text">
                 <small class="text-muted">
@@ -33,11 +34,11 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="d-grid gap-2">
-            <a href="/blog/{{.Title}}" class="btn btn-primary btn-lg m-2">View blog</a>
-          </div>
-        </div>
+        <!-- <div class="row"> -->
+        <!--   <div class="d-grid gap-2"> -->
+        <!--     <a href="/blog/{{.Title}}" class="btn btn-primary btn-lg m-2">View blog</a> -->
+        <!--   </div> -->
+        <!-- </div> -->
       </div>
       {{end}}
     </div>
