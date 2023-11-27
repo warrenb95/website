@@ -14,61 +14,58 @@
   </div>
 
   <div class="row">
-    <div class="col-md-8">
-      {{range .}}
-      <div class="card bg-transparent mb-3 rounded-4">
-        <div class="row g-0">
-          <div class="col-md-4">
-            <img src={{.ThumbnailPath}} class="img-thumbnail rounded" alt="blog image" />
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <!-- <h5 class="card-title">{{.Title}}</h5> -->
-              <h5><a href="/blog/{{.Title}}" class="m-2">View - {{.Title}}</a></h5>
-              <p class="card-text">{{.Summary}}</p>
-              <p class="card-text">
-                <small class="text-muted">
-                  Uploaded {{.Uploaded}}
-                </small>
-              </p>
-            </div>
-          </div>
+    {{range .}}
+    <div class="card col-md-4 bg-transparent mb-3 rounded-4">
+      <div class="row g-0">
+        <img src={{.ThumbnailPath}} class="img-fluid mx-auto rounded" style="width: auto; height: 15em"
+          alt="blog image" />
+        <div class="card-body">
+          <h5 class="card-title">{{.Title}}</h5>
+          <!-- <h5><a href="/blog/{{.Title}}" class="m-2">View - {{.Title}}</a></h5> -->
+          <p class="card-text">{{.Summary}}</p>
+          <p class="card-text">
+            <small class="text-muted">
+              Uploaded {{.Uploaded}}
+            </small>
+          </p>
         </div>
-        <!-- <div class="row"> -->
-        <!--   <div class="d-grid gap-2"> -->
-        <!--     <a href="/blog/{{.Title}}" class="btn btn-primary btn-lg m-2">View blog</a> -->
-        <!--   </div> -->
-        <!-- </div> -->
       </div>
-      {{end}}
-    </div>
-    <div class="col-md-4">
-      <div class="position-sticky">
-        <div class="p-2 rounded-4">
-          <h4>log</h4>
-          <ul class="list-unstyled">
-            <li>
-              <small>2023-11-03</small>
-              Well updating monthly was a lie...
-              Rewrote the blog with htmx and go html templating
-            </li>
-            <li>
-              <small>2023-01-05</small>
-              Watch this space 😄
-            </li>
-            <li>
-              <small>2023-01-18</small>
-              Added the about page
-            </li>
-            <li>
-              <small>2023-01-30</small>
-              Blog cards and blog pages
-            </li>
-          </ul>
+      <div class="row">
+        <div class="d-grid gap-2 col-10 mx-auto">
+          <a href="/blog/{{.Title}}" class="btn btn border m-2">View</a>
         </div>
       </div>
     </div>
+    {{end}}
+
+    <!-- <div class="col-md-4"> -->
+    <!--   <div class="position-sticky"> -->
+    <!--     <div class="p-2 rounded-4"> -->
+    <!--       <h4>log</h4> -->
+    <!--       <ul class="list-unstyled"> -->
+    <!--         <li> -->
+    <!--           <small>2023-11-03</small> -->
+    <!--           Well updating monthly was a lie... -->
+    <!--           Rewrote the blog with htmx and go html templating -->
+    <!--         </li> -->
+    <!--         <li> -->
+    <!--           <small>2023-01-05</small> -->
+    <!--           Watch this space 😄 -->
+    <!--         </li> -->
+    <!--         <li> -->
+    <!--           <small>2023-01-18</small> -->
+    <!--           Added the about page -->
+    <!--         </li> -->
+    <!--         <li> -->
+    <!--           <small>2023-01-30</small> -->
+    <!--           Blog cards and blog pages -->
+    <!--         </li> -->
+    <!--       </ul> -->
+    <!--     </div> -->
+    <!--   </div> -->
+    <!-- </div> -->
   </div>
+
 </div>
 
 {{block "foot" .}}
