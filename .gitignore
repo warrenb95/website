@@ -2,7 +2,7 @@
 *.null-ls*
 
 // air
-*tmp/
+tmp/
 .air.toml
 
 // Sass
