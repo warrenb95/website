@@ -1,12 +1,12 @@
-{{block "head" .}}
-{{end}}
+{{block "head" .}} {{end}}
 
-<div class="container">
-  <h1 class="display-1 mb-4 text-center"><strong>{{.Title}}</strong></h1>
-  <div class="row">
-    {{.Content}}
+<body class="bg-dark">
+  <div class="container">
+    <h1 class="display-1 mb-4 text-center text-primary">
+      <strong>{{.Title}}</strong>
+    </h1>
+    <div class="row text-light">{{.Content}}</div>
   </div>
-</div>
+</body>
 
-{{block "foot" .}}
-{{end}}
+{{block "foot" .}} {{end}}

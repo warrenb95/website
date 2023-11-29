@@ -182,8 +182,8 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var imgClassAdder func(n *nhtml.Node)
-	imgClassAdder = func(n *nhtml.Node) {
+	var htmlNodeClassAdder func(n *nhtml.Node)
+	htmlNodeClassAdder = func(n *nhtml.Node) {
 		if n.Type == nhtml.ElementNode && n.Data == "img" {
 			n.Attr = append(n.Attr, nhtml.Attribute{
 				Namespace: doc.Namespace,
@@ -191,12 +191,11 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 				Val:       "img-fluid",
 			})
 		}
-
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			imgClassAdder(c)
+			htmlNodeClassAdder(c)
 		}
 	}
-	imgClassAdder(doc)
+	htmlNodeClassAdder(doc)
 
 	var b bytes.Buffer
 	err = nhtml.Render(&b, doc)

@@ -34,7 +34,6 @@ func main() {
 	r.Use(s.Logger)
 
 	fs := http.FileServer(http.Dir("assets"))
-	// r.Handle("/static/", http.StripPrefix("/static/", fs))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
 	// Server handlers.
