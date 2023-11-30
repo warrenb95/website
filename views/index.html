@@ -1,78 +1,84 @@
-{{block "head" .}} {{end}}
-
-<body class="bg-dark">
-  <div class="container text-center">
-    <h1 class="display-1 mb-4 text-primary"><strong>warrenb95</strong></h1>
-    <div class="row">
-      <div class="col-md-12 p-4 my-4 rounded-4">
-        <h1 class="display-5 text-light">What's happening</h1>
-        <p class="text-light">
-          This is the start of my personal website and blog! I'm planning on
-          updating this website monthly 🤞.
-        </p>
-      </div>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      {{range .}}
-      <div class="col">
-        <div class="card bg-transparent rounded-2 h-100">
-          <img
-            src="{{.ThumbnailPath}}"
-            class="card-img-top"
-            alt="blog image"
-            style="height: 12em"
-          />
-          <div class="card-body">
-            <h5 class="card-title">
-              <a
-                href="/blog/{{.Title}}"
-                class="link-primary link-offset-3-hover link-underline-opacity-0 link-underline-opacity-90-hover stretched-link"
-                >{{.Title}}</a
-              >
-            </h5>
-            <p class="card-text text-light">{{.Summary}}</p>
-          </div>
-          <div class="card-footer bg-transparent">
-            <small class="text-muted"> Uploaded {{.Uploaded}} </small>
-          </div>
-          <!-- <div class="row"> -->
-          <!--   <div class="d-grid gap-2 col-10 mx-auto"> -->
-          <!--     <a href="/blog/{{.Title}}" class="btn btn border m-2">View</a> -->
-          <!--   </div> -->
-          <!-- </div> -->
+<!doctype html>
+<html lang="en">
+  {{block "head" .}} {{end}} {{block "navbar" .}} {{end}}
+  <body class="bg-dark d-flex flex-column min-vh-100">
+    <div class="container text-center mb-3">
+      <h1 class="display-1 mb-4 text-primary"><strong>warrenb95</strong></h1>
+      <div class="row">
+        <div class="col-md-12 p-4 my-4 rounded-4">
+          <h1 class="display-5 text-light">What's happening</h1>
+          <p class="text-light">
+            This is the start of my personal website and blog! I'm planning on
+            updating this website monthly 🤞.
+          </p>
         </div>
       </div>
-      {{end}}
 
-      <!-- <div class="col-md-4"> -->
-      <!--   <div class="position-sticky"> -->
-      <!--     <div class="p-2 rounded-4"> -->
-      <!--       <h4>log</h4> -->
-      <!--       <ul class="list-unstyled"> -->
-      <!--         <li> -->
-      <!--           <small>2023-11-03</small> -->
-      <!--           Well updating monthly was a lie... -->
-      <!--           Rewrote the blog with htmx and go html templating -->
-      <!--         </li> -->
-      <!--         <li> -->
-      <!--           <small>2023-01-05</small> -->
-      <!--           Watch this space 😄 -->
-      <!--         </li> -->
-      <!--         <li> -->
-      <!--           <small>2023-01-18</small> -->
-      <!--           Added the about page -->
-      <!--         </li> -->
-      <!--         <li> -->
-      <!--           <small>2023-01-30</small> -->
-      <!--           Blog cards and blog pages -->
-      <!--         </li> -->
-      <!--       </ul> -->
-      <!--     </div> -->
-      <!--   </div> -->
-      <!-- </div> -->
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {{range .}}
+        <div class="col">
+          <div class="card bg-transparent rounded-2 h-100">
+            <img
+              src="{{.ThumbnailPath}}"
+              class="card-img-top"
+              alt="blog image"
+              style="height: 12em"
+            />
+            <div class="card-body">
+              <h5 class="card-title">
+                <a
+                  href="/blog/{{.Title}}"
+                  class="link-primary link-offset-3-hover link-underline-opacity-0 link-underline-opacity-90-hover stretched-link"
+                  >{{.Title}}</a
+                >
+              </h5>
+              <p class="card-text text-light">{{.Summary}}</p>
+            </div>
+            <div class="card-footer bg-transparent">
+              <small class="text-muted"> Uploaded {{.Uploaded}} </small>
+            </div>
+            <!-- <div class="row"> -->
+            <!--   <div class="d-grid gap-2 col-10 mx-auto"> -->
+            <!--     <a href="/blog/{{.Title}}" class="btn btn border m-2">View</a> -->
+            <!--   </div> -->
+            <!-- </div> -->
+          </div>
+        </div>
+        {{end}}
+
+        <!-- <div class="col-md-4"> -->
+        <!--   <div class="position-sticky"> -->
+        <!--     <div class="p-2 rounded-4"> -->
+        <!--       <h4>log</h4> -->
+        <!--       <ul class="list-unstyled"> -->
+        <!--         <li> -->
+        <!--           <small>2023-11-03</small> -->
+        <!--           Well updating monthly was a lie... -->
+        <!--           Rewrote the blog with htmx and go html templating -->
+        <!--         </li> -->
+        <!--         <li> -->
+        <!--           <small>2023-01-05</small> -->
+        <!--           Watch this space 😄 -->
+        <!--         </li> -->
+        <!--         <li> -->
+        <!--           <small>2023-01-18</small> -->
+        <!--           Added the about page -->
+        <!--         </li> -->
+        <!--         <li> -->
+        <!--           <small>2023-01-30</small> -->
+        <!--           Blog cards and blog pages -->
+        <!--         </li> -->
+        <!--       </ul> -->
+        <!--     </div> -->
+        <!--   </div> -->
+        <!-- </div> -->
+      </div>
     </div>
-  </div>
-</body>
-
-{{block "foot" .}} {{end}}
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    {{block "foot" .}} {{end}}
+  </body>
+</html>
