@@ -99,6 +99,15 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 		return !timeA.Before(timeB)
 	})
 
+	for i := range retBlogs {
+		UploadedTime, err := time.Parse("2006-01-02T15:04:05-07:00", retBlogs[i].Uploaded)
+		if err != nil {
+			logger.WithError(err).Error("Failed to parse time for blog")
+		}
+
+		retBlogs[i].Uploaded = UploadedTime.Format(time.DateTime)
+	}
+
 	tmpl := template.Must(template.ParseGlob("./views/*"))
 	if err := tmpl.ExecuteTemplate(w, "index.html", retBlogs); err != nil {
 		logger.WithError(err).Error("Failed to execute index template")
@@ -153,6 +162,7 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to unmarshal blog data", http.StatusInternalServerError)
 		return
 	}
+	blog.Title = strings.ReplaceAll(blog.Title, "_", " ")
 
 	// Get the first page of results for ListObjectsV2 for a bucket
 	object, err := s.s3Client.GetObject(context.Background(), &s3.GetObjectInput{
@@ -191,6 +201,13 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 				Val:       "img-fluid",
 			})
 		}
+		if n.Data == "a" {
+			n.Attr = append(n.Attr, nhtml.Attribute{
+				Namespace: doc.Namespace,
+				Key:       "target",
+				Val:       "_blank",
+			})
+		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			htmlNodeClassAdder(c)
 		}
@@ -213,6 +230,4 @@ func (s *Server) Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to exeute show templated", http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
